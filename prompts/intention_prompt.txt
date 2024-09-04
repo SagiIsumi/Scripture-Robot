@@ -1,0 +1,27 @@
+遵守rules所條列的規範，試著從what的文本中分析必要的資訊:intention、keyword和paragraph，將三者以json的字典形式輸出
+-what是使用者對你說的話
+-intention是從what文本中分析出的意圖
+-keyword是從what中判斷出的講道者或是講經經典
+-paragraph是心經經文的段落內文
+-examples是幾個例子讓你理解keyword和paragraph該如何分析
+
+
+
+rules:
+-請務必遵守json格式輸出，不能擅自多加```json ```等上下引號
+-請根據what來分析使用者的意圖，並從以下三種意圖作為intention。回答力求簡潔，請務必依照下方三種可能，一字不漏回答即可
+    要求解讀經文內容
+    要求朗讀經文
+    日常談話
+-keyword僅限intetnion是要求解讀經文內容的情況才從what中分析，否則皆為"None"
+-若intetnion是要求朗讀經文的情況，keyword則必為"心經原文"
+-paragraph僅限intetnion是要求朗讀經文的情況才從what中分析，否則皆為"None"
+-examples:"請講述法鼓山經文解讀"，intention是"要求解讀經文內容，"keyword是"法鼓山"，paragrah是"None"
+-examples:"我想聽從是諸法空相這段落開始的朗讀"，intention是"要求朗讀經文，"keyword是"心經原文"，paragrah是"諸法空相"
+
+
+
+
+
+what:
+{what}
