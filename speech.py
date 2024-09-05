@@ -20,20 +20,27 @@ class audio_procession():
 
     def intra_female_speak(self,input_text):
         female_speak(input_text,volume=1,speed='fast',tone='normal')
+        print("hi")
         self.triger=True
-    def speaking(self,text,interrupt)->None:
+    def speaking(self,text)->None:
         frames=[]
-        speaker=threading.Thread(target=self.intra_female_speak, args=(text,), daemon=True)
-        speaker.start()
+        interrupt=False
+        self.triger=False
+        try:
+            speaker=threading.Thread(target=self.intra_female_speak, args=(text,), daemon=True)
+            speaker.start()
+        except Exception as e:
+            print(e)
         p=pyaudio.PyAudio()
-        detecting_threashold=70
+        detecting_threashold=60
         stream=p.open(format=self.audio_format,
                 channels=self.channels,
                 rate=self.rate,
                 input=True,
                 #input_device_index=2,
                 frames_per_buffer=self.chunk)
-        while True:#開始收音
+        try:
+            while True:#開始收音
                 for i in range(12):
                     data = stream.read(self.chunk)
                     frames.append(data)
@@ -46,25 +53,33 @@ class audio_procession():
                     print("over")
                     break
                 elif self.triger:
-                    self.triger=False
                     interrupt=False
                     break
+        except Exception as e:
+            print(e)
+        stream.stop_stream()
+        stream.close()
+        p.terminate()#關閉串流
+        return interrupt
+            
     def recording(self)->str:
         p=pyaudio.PyAudio()
         frames=[]
         threashold=70 #音量閾值
-        max_volume_threashold=40
+        max_volume_threashold=45
         silent_chunk=0 #沉默時長
         silent_duration=3
         silent_chunks_threshold = int(silent_duration*self.rate/self.chunk)
-
-        stream=p.open(format=self.audio_format,
-                channels=self.channels,
-                rate=self.rate,
-                input=True,
-                #input_device_index=0,
-                frames_per_buffer=self.chunk)
-        print("開始錄音")
+        try:
+            stream=p.open(format=self.audio_format,
+                    channels=self.channels,
+                    rate=self.rate,
+                    input=True,
+                    #input_device_index=0,
+                    frames_per_buffer=self.chunk)
+            print("開始錄音")
+        except Exception as e:
+            print(e)
         try:#持續收音直到沉默時長<沉默閾值
             while True:
                 data = stream.read(self.chunk)
@@ -102,15 +117,19 @@ class audio_procession():
     
 
     def text_to_speech(self,path)->str:
-        client=OpenAI()
-        path=Path(path)
-        audio=open(path,"rb")
-        response=client.audio.transcriptions.create(
-            model="whisper-1",
-            file=audio,
-            language="zh"
-        )
-        return response.text
+        try:
+            client=OpenAI()
+            path=Path(path)
+            audio=open(path,"rb")
+            response=client.audio.transcriptions.create(
+                model="whisper-1",
+                file=audio,
+                language="zh"
+            )
+            return response.text
+        except Exception as e:
+            print(e)
+            return "對話結束"
 
         
 def Main():

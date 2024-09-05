@@ -35,7 +35,5 @@ if __name__=='__main__':
         conversation_history.save_text(result)
         conversation_history.load_text()
         #print(result)
-        thread_2=threading.Thread(target=MyAudio.speaking,args=(result[1],interrupt),daemon=True)
-        thread_2.start()
-        thread_2.join()
-        print(interrupt)
+        interrupt=MyAudio.speaking(result[1])
+
