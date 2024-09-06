@@ -22,17 +22,17 @@ class audio_procession():
         female_speak(input_text,volume=1,speed='fast',tone='normal')
         print("hi")
         self.triger=True
-    def speaking(self,text)->None:
+    def speaking(self,text)->None:#播音
         frames=[]
         interrupt=False
         self.triger=False
         try:
             speaker=threading.Thread(target=self.intra_female_speak, args=(text,), daemon=True)
-            speaker.start()
+            speaker.start()#播音執行緒
         except Exception as e:
             print(e)
         p=pyaudio.PyAudio()
-        detecting_threashold=60
+        detecting_threashold=60#音量閾值
         stream=p.open(format=self.audio_format,
                 channels=self.channels,
                 rate=self.rate,
@@ -47,7 +47,7 @@ class audio_procession():
                 audio_data = np.frombuffer(b"".join(frames), dtype=np.int16)
                 volume = np.abs(audio_data).mean()
                 print(volume)
-                if volume>detecting_threashold:
+                if volume>detecting_threashold:#音量大於閾值結束播音
                     pygame.mixer.music.stop()
                     interrupt=True
                     print("over")
@@ -101,7 +101,7 @@ class audio_procession():
 
         verify_data=np.frombuffer(b"".join(frames), dtype=np.int16)
         max_volume = np.abs(verify_data).mean()
-        if max_volume<max_volume_threashold:
+        if max_volume<max_volume_threashold:#若收音為無聲音檔返回None
             return "None"
 
         time_object=datetime.now()
@@ -112,7 +112,7 @@ class audio_procession():
             wf.setnchannels(self.channels)
             wf.setsampwidth(p.get_sample_size(self.audio_format))
             wf.setframerate(self.rate)
-            wf.writeframes(b"".join(frames))
+            wf.writeframes(b"".join(frames))#音檔寫出
         return audio_path#返回檔案儲存路徑
     
 
@@ -132,7 +132,7 @@ class audio_procession():
             return "對話結束"
 
         
-def Main():
+def Main(): #測試用
     test=audio_procession()
     mypath=audio_path=test.recording()
     human_word=test.text_to_speech(mypath)

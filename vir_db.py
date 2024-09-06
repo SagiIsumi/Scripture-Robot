@@ -16,15 +16,15 @@ class VectorDB():
             persist_directory=persist_directory
         )
         
-    def load_text(self,path=".\conversation_history")->None:     #讀取對話紀錄(長期記憶)
+    def load_text(self,path=".\conversation_history")->None:     #建立vector database，進行後續RAG撈資料
         texts=[]
         raw_documents=None
         for i,content in enumerate(Path(path).glob("*.txt")):
-            if content in self.record:
+            if content in self.record:#若已經讀過該檔，就不要再讀一次
                 continue
             self.record.append(content)
             raw_documents = TextLoader(str(content), encoding='utf-8').load_and_split(self.splitter)
-            if path==".\scripts":
+            if path==".\scripts":#讀取經文資料時對metadata進行處理並儲存
                 for name in raw_documents:
                     title=name.metadata["source"].split("_")[0]
                     name.metadata["source"]= title.split("\\")[1]
@@ -52,7 +52,7 @@ class VectorDB():
         for i in results:
             output=output+"\n"+f"{i.page_content}"
         return output
-    def get_retriver(self,keyword=None):
+    def get_retriver(self,keyword=None): #返回vector database的retriver，功能跟上面重複了，但我懶得優化
         if keyword!=None:
             return self.vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 3,"filter":{"source":keyword}})
         else:
