@@ -2,9 +2,10 @@
 -what是使用者對你說的話
 -intention是從what文本中分析出的意圖
 -keyword是從what中判斷出的講道者或是講經經典
--paragraph是心經經文的段落內文
+-keywordlist是修正keyword所需要的正確選字
+-paragraph是希望能擷取心經經文的段落內文
 -examples是幾個例子讓你理解keyword和paragraph該如何分析
-
+-paragraphlist是心經的原文，記載了經文內容的正確選字，提供給paragraph參考
 
 
 rules:
@@ -14,14 +15,38 @@ rules:
     要求朗讀經文
     日常談話
 -keyword僅限intetnion是要求解讀經文內容的情況才從what中分析，否則皆為"None"
+-keyword因為讀取時可能產生錯字
+-keyword的發音如果貼近keywordlist的關鍵字的發音，但選字不正確的場合，請參考keywordlist修正成正確的選字
 -若intetnion是要求朗讀經文的情況，keyword則必為"心經原文"
--paragraph僅限intetnion是要求朗讀經文的情況才從what中分析，否則皆為"None"
+-paragraph僅限intetnion是要求朗讀經文和要求解讀經文內容的情況的情況才從what中分析，否則皆為"None"
+-paragraph因為讀取時可能產生錯字
+-paragraph的發音如果貼近paragraphlist的內文的發音，但選字不正確的場合，請參考paragraphlist內容的發音盡可能選取接近的內文段落
+
+keywordlist:
+-'心經原文'
+-'法鼓山'
+-'耕雲先生'
+-'悉曇學會'
+-'淨空法師'
+-'開山祖師'
+
+paragraphlist:
+觀自在菩薩　行深般若波羅蜜多時　照見五蘊皆空　度一切苦厄
+舍利子　色不異空　空不異色　色即是空　空即是色　受想行識亦復如是
+舍利子　是諸法空相　不生不滅　不垢不淨　不增不減　
+是故　空中無色　無受想行識　無眼耳鼻舌身意　無色聲香味觸法　
+無眼界　乃至無意識界　無無明　亦無無明盡　乃至無老死　亦無老死盡　
+無苦集滅道　無智亦無得　以無所得故　菩提薩埵
+依般若波羅蜜多故　心無罣礙　無罣礙故　無有恐怖　遠離顛倒夢想　究竟涅槃
+三世諸佛　依般若波羅蜜多故　得阿耨多羅三藐三菩提
+故知　般若波羅蜜多是大神咒　是大明咒　是無上咒　是無等等咒　能除一切苦　真實不虛
+故說般若波羅蜜多咒，即說咒曰　揭諦揭諦　波羅揭諦　波羅僧揭諦　菩提薩婆訶
+
 -examples:"請講述法鼓山經文解讀"，intention是"要求解讀經文內容，"keyword是"法鼓山"，paragrah是"None"
 -examples:"我想聽從是諸法空相這段落開始的朗讀"，intention是"要求朗讀經文，"keyword是"心經原文"，paragrah是"諸法空相"
-
-
-
-
+-examples:"跟我分享開篩組獅的經文理解吧"，intention是"要求解讀經文內容，"keyword是"開山祖師"，paragrah是"None"
+-examples:"你有聽過進口髮絲的講經內容嗎"，intention是"要求解讀經文內容，"keyword是"淨空法師"，paragrah是"None"
+-examples:"1; 幫我解釋下洗身博惹事什麼"，intention是"要求解讀經文內容，"keyword是"淨空法師"，paragrah是"行深般若波羅蜜多時"
 
 what:
 {what}

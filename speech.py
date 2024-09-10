@@ -32,7 +32,7 @@ class audio_procession():
         except Exception as e:
             print(e)
         p=pyaudio.PyAudio()
-        detecting_threashold=60#音量閾值
+        detecting_threashold=55#音量閾值
         stream=p.open(format=self.audio_format,
                 channels=self.channels,
                 rate=self.rate,

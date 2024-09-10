@@ -48,6 +48,7 @@ class Chatmodel():#核心對話模型
     def run(self,texts:dict,intention:dict)->list: #主對話model用
         text=self.stm.get()+texts['what']
         texts['intention']=intention['intention']
+        texts['keyword']=intention['keyword']
         texts["local_data"]=self.text_retrival(text,intention['keyword'])
         conversation=self.stm.get()+"\n"+self.ltm.retrive_text(text)
         texts["conversation"]=conversation

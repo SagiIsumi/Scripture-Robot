@@ -5,11 +5,13 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from datetime import datetime
+import os
+API_KEY=os.getenv('OPENAI_API_KEY')
 
 class VectorDB():
     def __init__(self,chunk_size=200,chunk_overlap=20,persist_directory=None)->None:
         self.splitter=RecursiveCharacterTextSplitter(separators=[" ", "\n"],chunk_size=chunk_size,chunk_overlap=chunk_overlap)
-        self.embeddings=OpenAIEmbeddings(openai_api_key='sk-proj-ebjcEZYloUZnX0nLGaXdT3BlbkFJAeGVT80bSncVYWOqmaFZ')
+        self.embeddings=OpenAIEmbeddings(openai_api_key=API_KEY)
         self.record=[]
         self.vectorstore = Chroma(
             embedding_function=self.embeddings,
