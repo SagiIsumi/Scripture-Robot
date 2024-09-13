@@ -1,5 +1,6 @@
 from pathlib import Path
 from datetime import datetime
+import requests
 import pyaudio
 import wave
 import threading
@@ -7,7 +8,7 @@ import pygame
 from datetime import datetime
 from openai import OpenAI
 import numpy as np
-from trilingual_module import female_speak
+from trilingual_module import female_speak,minnan_speak2
 
 
 class audio_procession():
@@ -18,17 +19,23 @@ class audio_procession():
         self.chunk = 1024
         self.triger=False
 
-    def intra_female_speak(self,input_text):
+    def inner_female_speak(self,input_text):
         female_speak(input_text,volume=1,speed='fast',tone='normal')
-        print("hi")
         self.triger=True
-    def speaking(self,text)->None:#播音
+    def inner_minnan_speak(self,input_text):
+        minnan_speak2(input_text)
+        self.triger=True 
+    def speaking(self,text,language='ch')->None:#播音
         frames=[]
         interrupt=False
         self.triger=False
         try:
-            speaker=threading.Thread(target=self.intra_female_speak, args=(text,), daemon=True)
-            speaker.start()#播音執行緒
+            if language == 'ch' or language=='en':
+                speaker=threading.Thread(target=self.inner_female_speak, args=(text,), daemon=True)
+                speaker.start()#播音執行緒
+            else:
+                speaker=threading.Thread(target=self.inner_minnan_speak, args=(text,), daemon=True)
+                speaker.start()#播音執行緒
         except Exception as e:
             print(e)
         p=pyaudio.PyAudio()
@@ -65,7 +72,7 @@ class audio_procession():
     def recording(self)->str:
         p=pyaudio.PyAudio()
         frames=[]
-        threashold=70 #音量閾值
+        threashold=60 #音量閾值
         max_volume_threashold=45
         silent_chunk=0 #沉默時長
         silent_duration=3
@@ -116,20 +123,31 @@ class audio_procession():
         return audio_path#返回檔案儲存路徑
     
 
-    def text_to_speech(self,path)->str:
-        try:
-            client=OpenAI()
-            path=Path(path)
-            audio=open(path,"rb")
-            response=client.audio.transcriptions.create(
-                model="whisper-1",
-                file=audio,
-                language="zh"
-            )
-            return response.text
-        except Exception as e:
-            print(e)
-            return "對話結束"
+    def speech_to_text(self,path, language='ch')->str:
+        path=Path(path)
+        if language=='ch' or language=='en':
+            try:
+                client=OpenAI()
+                audio=open(path,"rb")
+                response=client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio,
+                    language="zh"
+                )
+                return response.text
+            except Exception as e:
+                print(e)
+                return "對話結束"
+        elif language=='minnan':
+            try:
+                url="http://119.3.22.24:3998/dotcasr"
+                with open(path, 'rb') as file:
+                    data = {'userid': '00001 ', 'token': '123356'}
+                    response = requests.post(url, data=data, files={"file": file})
+                return response.json()['result']
+            except Exception as e:
+                print(e)
+                return "對話結束"
 
         
 def Main(): #測試用

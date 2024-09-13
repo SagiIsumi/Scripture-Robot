@@ -1,20 +1,28 @@
-from pathlib import Path
-from openai import OpenAI
-from datetime import datetime
+import threading
+import queue
+class thread_parameter_get():
+    def __init__(self):
+        self.thread=None
+    def inner_getter(self,query,func,*args):
+        query.put(func(args))
+    def independent_thread(self,*args):
+        self.thread=threading.Thread(target=self.inner_getter,args=args,daemon=True)
+        self.thread.start()
+def func1(*args):
+  a= 5
+  print(args)
+  for i in args[0]:
+    print(i)
+  return a
 
-time_object=datetime.now()
-currentTime = time_object.strftime("%d-%m-%y_%H-%M-%S")
-audio_path=Path("./audio_file")/Path(currentTime+".mp3")
-txt_file=Path("./conversation_history/response_23-21-11.txt")
-
-with open(txt_file,encoding="utf-8") as f:
-    a=f.readline()
-    input_text=f.read()
-client= OpenAI()
-with client.audio.speech.with_streaming_response.create(
-  model="tts-1",
-  voice="nova",
-  input=input_text,
-) as response:
-    print(type(response))
-    response.stream_to_file(audio_path)
+query1=queue.Queue()
+query2=queue.Queue()
+thread_1=thread_parameter_get()
+thread_2=thread_parameter_get()
+thread_1.independent_thread(query1,func1,1,2,3,4,5)
+thread_2.independent_thread(query2,func1,6,7,8,9,10)
+thread_1.thread.join()
+thread_2.thread.join()
+print(query1.get())
+print(query2.get())
+print('over')
