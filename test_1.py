@@ -1,4 +1,5 @@
 from core_LLM import Chatmodel
+from MOBIpackages import ControlInterface
 from vir_db import VectorDB
 import speech
 import multiprocessing as mp
@@ -54,12 +55,14 @@ if __name__=='__main__':
     Main_model=Chatmodel(promptpath='.\prompts\chat_prompt.txt',
                             longmemory_db=conversation_history,local_db=script_data)
     MyAudio=speech.audio_procession()
+    interface=ControlInterface.ControlInterface(enable_camera=True, show_img=True, enable_arm=False, enable_face=True, is_FullScreen=False)
     #建立對話模型，上為偵測意圖，下為對話用
     language='ch'
     normal_trigger=queue.Queue()
     minnan_trigger=queue.Queue()
     text_dict={'what':''}
     interrupt=False
+    action="nothing"
 
     while True:
         if interrupt:#如果說話被打斷執行
@@ -82,5 +85,5 @@ if __name__=='__main__':
         conversation_history.save_text(result)#存本次對話
         conversation_history.load_text()#讀ltm
         #print(result)
-        interrupt=MyAudio.speaking(result[1],language=language)#機器人說話
-
+        #interrupt=MyAudio.speaking(result[1],language=language)#機器人說話
+        interrupt=interface.express(result[1],intention['emotion'],action,language)
