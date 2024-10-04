@@ -5,8 +5,12 @@ from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
 from datetime import datetime
-import os
-API_KEY=os.getenv('OPENAI_API_KEY')
+import configparser
+
+config=configparser.ConfigParser()
+config.read('config.ini')
+API_KEY=config.get('openai','key1')
+
 
 class VectorDB():
     def __init__(self,chunk_size=200,chunk_overlap=20,persist_directory=None)->None:
@@ -21,10 +25,10 @@ class VectorDB():
     def load_text(self,path=".\conversation_history")->None:     #建立vector database，進行後續RAG撈資料
         texts=[]
         raw_documents=None
-        for i,content in enumerate(Path(path).glob("*.txt")):
-            if content in self.record:#若已經讀過該檔，就不要再讀一次
-                continue
-            self.record.append(content)
+        for content in Path(path).glob("*.txt"):
+            # if content in self.record:#若已經讀過該檔，就不要再讀一次
+            #     continue
+            # self.record.append(content)
             raw_documents = TextLoader(str(content), encoding='utf-8').load_and_split(self.splitter)
             if path==".\scripts":#讀取經文資料時對metadata進行處理並儲存
                 for name in raw_documents:
@@ -34,25 +38,29 @@ class VectorDB():
 
             else:
                 texts=texts+raw_documents
+
+        filter_texts=[item for item in texts if item not in self.record]
+        self.record=texts
         if raw_documents!=None:
-            self.vectorstore.add_documents(documents=texts) 
+            self.vectorstore.add_documents(documents=filter_texts) 
             
     def save_text(self,response:list)->None:     #將對話儲存為txt檔
         currentDateAndTime = datetime.now()
-        currentTime = currentDateAndTime.strftime("%H-%M-%S")
+        currentTime = currentDateAndTime.strftime("%Y-%m-%d")
         title='./conversation_history/response_'+currentTime+".txt"
         path=Path(title)
-        with open(path,mode="w",encoding="utf-8") as f:
-            f.write(response[0])
+        with open(path,mode="a",encoding="utf-8") as f:
+            f.write('Human: '+response[0])
             f.write("\n")
-            f.write(response[1])
+            f.write('莫比: '+response[1]+"\n")
     def retrive_text(self,text,keyword=None)->str:       #RAG，取出相關對話、資料
-        retriver=self.vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": 3})
+        retriver=self.vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
         results=retriver.invoke(text)
         output=''
         #print(results)
-        for i in results:
-            output=output+"\n"+f"{i.page_content}"
+        for i,content in enumerate(results):
+            output=output+f"Document {i+1}: Text:{content.page_content}\n\
+                            Metadata: {content.metadata}\n"
         return output
     def get_retriver(self,keyword=None): #返回vector database的retriver，功能跟上面重複了，但我懶得優化
         if keyword!=None:

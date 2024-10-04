@@ -76,6 +76,7 @@ oauthlib==3.2.2
 onnxruntime==1.18.1
 openai==1.40.3
 OpenCC==1.1.9
+opencv-python==4.10.0.84
 opentelemetry-api==1.26.0
 opentelemetry-exporter-otlp-proto-common==1.26.0
 opentelemetry-exporter-otlp-proto-grpc==1.26.0

@@ -52,7 +52,7 @@ class GPTopenai():
         text = self.prompt.format(text_dict)
     
     
-        #print("==================================\n"+text+"\n====================================")
+        print("==================================\n"+text+"\n====================================")
         send.append({
             "type": "text",
             "text": text

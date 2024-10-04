@@ -9,6 +9,7 @@ from datetime import datetime
 from openai import OpenAI
 import numpy as np
 from trilingual_module import female_speak,minnan_speak2
+from opencc import OpenCC
 
 
 class audio_procession():
@@ -125,8 +126,8 @@ class audio_procession():
 
     def speech_to_text(self,path, language='ch')->str:
         path=Path(path)
-        if language=='ch' or language=='en':
-            try:
+        try:
+            if language=='ch':
                 client=OpenAI()
                 audio=open(path,"rb")
                 response=client.audio.transcriptions.create(
@@ -134,20 +135,28 @@ class audio_procession():
                     file=audio,
                     language="zh"
                 )
+                trans=OpenCC('s2twp')
+                response=trans.convert(response.text)
+                return response
+            if language=='en':
+                client=OpenAI()
+                audio=open(path,"rb")
+                response=client.audio.transcriptions.create(
+                    model="whisper-1",
+                    file=audio,
+                    language="en"
+                )
                 return response.text
-            except Exception as e:
-                print(e)
-                return "對話結束"
-        elif language=='minnan':
-            try:
+            if language=='minnan':
                 url="http://119.3.22.24:3998/dotcasr"
                 with open(path, 'rb') as file:
                     data = {'userid': '00001 ', 'token': '123356'}
                     response = requests.post(url, data=data, files={"file": file})
                 return response.json()['result']
-            except Exception as e:
-                print(e)
-                return "對話結束"
+        except Exception as e:
+            print(e)
+            return "對話結束"
+
 
         
 def Main(): #測試用

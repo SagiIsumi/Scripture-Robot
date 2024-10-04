@@ -33,7 +33,7 @@ class ControlInterface():
 
 ############################### 執行續定義 ###########################################
     def camera_stream(self, show_img) -> None: # 相機控制
-        self.cap = cv2.VideoCapture(1)
+        self.cap = cv2.VideoCapture(0)#我筆電先改成0
         if not self.cap.isOpened():
             print("Cannot open camera")
             return -1
@@ -308,7 +308,7 @@ class ControlInterface():
 
 ############################### 調用函數 ###########################################
     def get_frame(self) -> None: # 取得影像
-        cv2.imwrite('input_img/img.jpg', self.frame)
+        cv2.imwrite('./input_img/img.jpg', self.frame)
         print('save')
 
     def random_action(self) -> str:  # 隨機動作選擇
@@ -350,10 +350,10 @@ class ControlInterface():
                 return text
     def inner_female_speak(self,input_text):
         female_speak(input_text,volume=1,speed='fast',tone='normal')
-        self.triger=True
+        self.trigger=True
     def inner_minnan_speak(self,input_text):
         minnan_speak2(input_text)
-        self.triger=True       
+        self.trigger=True       
     def express(self, talk, emotion, action, language='ch') -> None: # 表達  
         # arm
         self.action = action 
@@ -364,6 +364,10 @@ class ControlInterface():
         self.state = 'speak'
         # voice
         frames=[]
+        audio_format=pyaudio.paInt16
+        channels = 1
+        rate = 44100
+        chunk = 1024
         interrupt=False
         self.trigger=False
         try:
@@ -377,16 +381,16 @@ class ControlInterface():
             print(e)
         p=pyaudio.PyAudio()
         detecting_threashold=55#音量閾值
-        stream=p.open(format=self.audio_format,
-                channels=self.channels,
-                rate=self.rate,
+        stream=p.open(format=audio_format,
+                channels=channels,
+                rate=rate,
                 input=True,
                 #input_device_index=2,
-                frames_per_buffer=self.chunk)
+                frames_per_buffer=chunk)
         try:
             while True:#開始收音
                 for i in range(12):
-                    data = stream.read(self.chunk)
+                    data = stream.read(chunk)
                     frames.append(data)
                 audio_data = np.frombuffer(b"".join(frames), dtype=np.int16)
                 volume = np.abs(audio_data).mean()
@@ -406,7 +410,7 @@ class ControlInterface():
         p.terminate()#關閉串流
         self.state = 'idol'
         return interrupt
-        
+    
 
 if __name__ == '__main__':
     interface = ControlInterface(enable_camera=False, show_img=False, enable_arm=True, enable_face=True, is_FullScreen=False)

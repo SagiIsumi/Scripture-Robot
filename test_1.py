@@ -1,4 +1,5 @@
 from core_LLM import Chatmodel
+from GPTpackages.ImageBufferMemory import encode_image
 from MOBIpackages import ControlInterface
 from vir_db import VectorDB
 import speech
@@ -8,6 +9,8 @@ import time
 from pathlib import Path
 from trilingual_module import female_speak, minnan_speak2
 import queue
+import os
+
 #以上為 input module
 class thread_parameter_get():
     def __init__(self):
@@ -22,29 +25,47 @@ def language_judger(path):
     global language
     result=[]
     thread_2=thread_parameter_get()
-    thread_2.independent_thread(normal_trigger,MyAudio.speech_to_text,path,'ch')
+    thread_2.independent_thread(chinese_trigger,MyAudio.speech_to_text,path,'ch')
     thread_3=thread_parameter_get()
-    thread_3.independent_thread(minnan_trigger,MyAudio.speech_to_text,path,'minnan')
+    thread_3.independent_thread(english_trigger,MyAudio.speech_to_text,path,'en')
+    thread_4=thread_parameter_get()
+    thread_4.independent_thread(minnan_trigger,MyAudio.speech_to_text,path,'minnan')
     thread_2.thread.join()
     thread_3.thread.join()
-    result.append(normal_trigger.get())
+    thread_4.thread.join()
+    result.append(chinese_trigger.get())
+    result.append(english_trigger.get())
     result.append(minnan_trigger.get())
-    
-    if result[0]=='我要說中文':
+    print(result[0])
+    print(result[1])
+    print(result[2])
+    if result[0]=='我要說中文' or result[0]=='我要說中文。':
         language='ch'
-        female_speak("好的，我知道了",1,'normal','normal')
+        female_speak("好的，我知道了",1,'fast','normal')
         return None
-    elif result[0]=='I am going to speak English':
+    elif result[1]=='I am going to speak English' or result[1]=="I'm going to speak English" or\
+            result[1]=='I am going to speak English.' or result[1]=="I'm going to speak English.":
         language='en'
-        female_speak("OKay, I am ready, please go ahead",1,'normal','normal')
+        female_speak("OKay, I am ready, please go ahead",1,'fast','normal')
         return None
-    elif result[1]=='我要說台語':
+    elif result[2]=='我要說台語' or result[2]=='我要說臺語':
         language='minnan'
         minnan_speak2("好的，我知道了")
         return None
     if language=='minnan':
         return result[1]
     else: return result[0]
+
+def myinterruptspeak(language,interface):
+    interface.state='speak'
+    if language=='ch':
+        female_speak("抱歉，你想說什麼?",1,'fast','normal')
+    if language=='en':
+        female_speak("sorry, what do you say?",1,'fast','normal')
+    if language=='minnan':
+        minnan_speak2("抱歉，你想說什麼?")
+    interface.state='idol'
+
 
 if __name__=='__main__':
     conversation_history=VectorDB(persist_directory='.\conversation_db')
@@ -58,7 +79,8 @@ if __name__=='__main__':
     interface=ControlInterface.ControlInterface(enable_camera=True, show_img=True, enable_arm=False, enable_face=True, is_FullScreen=False)
     #建立對話模型，上為偵測意圖，下為對話用
     language='ch'
-    normal_trigger=queue.Queue()
+    chinese_trigger=queue.Queue()
+    english_trigger=queue.Queue()
     minnan_trigger=queue.Queue()
     text_dict={'what':''}
     interrupt=False
@@ -67,21 +89,27 @@ if __name__=='__main__':
     while True:
         if interrupt:#如果說話被打斷執行
             interrupt=False
-            thread_1=threading.Thread(target=female_speak,args=("抱歉，你想說什麼?",1,'normal','normal',),daemon=True)
+            interface.state='speak'
+            thread_1=threading.Thread(target=myinterruptspeak,args=(language,interface,),daemon=True)
             thread_1.start()
             time.sleep(1)
         input=MyAudio.recording()#收音
-        
         if input=="None":#無聲音檔不執行
             continue
+        interface.get_frame()
+        fileList = os.listdir('input_img')
+        if fileList != []:
+            img_list = [encode_image('input_img/' + fileList[-1])]
         text_dict['what']=language_judger(input)
         if text_dict['what']==None:
             continue
         if text_dict['what']=='對話結束':#結束對話
             break
+        print(language)
+        text_dict['language']=language
         intention=intention_answer.run_intention(texts=text_dict)
         #print(intention)
-        result=Main_model.run(text_dict,intention=intention)#run GPT model
+        result=Main_model.run(text_dict,intention=intention,img_list=img_list)#run GPT model
         conversation_history.save_text(result)#存本次對話
         conversation_history.load_text()#讀ltm
         #print(result)
