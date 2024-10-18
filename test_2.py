@@ -78,7 +78,7 @@ if __name__=='__main__':
                             longmemory_db=conversation_history,local_db=script_data,temperature=0.5)
 
     MyAudio=speech.audio_procession()
-    interface=ControlInterface.ControlInterface(enable_camera=True, show_img=True, enable_arm=False, enable_face=True, is_FullScreen=False)
+    interface=ControlInterface.ControlInterface(enable_camera=False, show_img=False, enable_arm=False, enable_face=False, is_FullScreen=False)
     #建立對話模型，上為偵測意圖，下為對話用
     language='ch'
     chinese_trigger=queue.Queue()
