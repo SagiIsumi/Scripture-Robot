@@ -1,6 +1,6 @@
 import requests
 
-MODEL = "gpt-4o"
+MODEL = "gpt-4o-mini"
 
 class GPTopenai():
     def __init__(self, openai_api_key, prompt, temperature = 0.1, text_memory=None,model=MODEL, img_memory=None) -> None:

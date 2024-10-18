@@ -49,11 +49,13 @@ class Chatmodel():#核心對話模型
         #result=[input,output]
         return result
     def run(self,texts:dict,intention:dict,img_list=[])->list: #主對話model用
-        text=self.stm.get()+texts['what']
+        text=texts['what']+"，短期記憶:"+self.stm.get()
         texts['intention']=intention['intention']
         texts['keyword']=intention['keyword']
-        texts["local_data"]=self.text_retrival(text,intention['keyword'])
-        conversation=self.stm.get()+"\n"+self.ltm.retrive_text(text)
+        rag_text=f"解經段落:{intention['paragraph']}，提問: "+text if intention["paragraph"]!='None' else text
+        texts["local_data"]=self.text_retrival(rag_text,intention['keyword'])
+        conversation=self.ltm.retrive_text(text)
+        texts["short_memory"]=self.stm.get()
         texts["conversation"]=conversation
         texts["paragraph"]=intention["paragraph"]
         #以上就撈本地資料、stm、ltm各種資料

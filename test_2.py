@@ -71,10 +71,12 @@ if __name__=='__main__':
     conversation_history=VectorDB(persist_directory='.\conversation_db')
     script_data=VectorDB(persist_directory='.\script_db')
     script_data.load_text(path='.\scripts')
+    conversation_history.load_text()
     #建立本地程式庫，建好後會有conversation_db和script_db兩個資料夾
     intention_answer=Chatmodel(promptpath='.\prompts\intention_prompt.txt')
     Main_model=Chatmodel(promptpath='.\prompts\chat_prompt.txt',
                             longmemory_db=conversation_history,local_db=script_data,temperature=0.5)
+
     MyAudio=speech.audio_procession()
     interface=ControlInterface.ControlInterface(enable_camera=True, show_img=True, enable_arm=False, enable_face=True, is_FullScreen=False)
     #建立對話模型，上為偵測意圖，下為對話用
