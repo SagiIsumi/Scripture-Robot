@@ -22,6 +22,7 @@ class Chatmodel():#核心對話模型
         self.ltm=longmemory_db
         self.local_db=local_db
         self.pre_para=''
+        self.pre_para=''
         self.trans=OpenCC('s2twp')#簡中轉繁中用，備用的
         self.model=GPTopenai(
             openai_api_key=openai_key,

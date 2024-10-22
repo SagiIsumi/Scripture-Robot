@@ -9,10 +9,13 @@ from transformers import AutoTokenizer, AutoModel
 from langchain_core.embeddings import Embeddings
 import torch
 import configparser
+import os
 
 config=configparser.ConfigParser()
 config.read('config.ini')
 API_KEY=config.get('openai','key1')
+os.environ['OPENAI_API_KEY']=API_KEY
+
 class HuggingfaceEmbeddingModel(Embeddings):
     def __init__(self, model_name: str, device):
         # 初始化 Huggingface 模型和 Tokenizer
