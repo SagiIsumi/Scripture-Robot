@@ -78,7 +78,7 @@ if __name__=='__main__':
                             longmemory_db=conversation_history,local_db=script_data,temperature=0.5)
 
     MyAudio=speech.audio_procession()
-    interface=ControlInterface.ControlInterface(enable_camera=True, show_img=True, enable_arm=False, enable_face=True, is_FullScreen=False)
+    interface=ControlInterface.ControlInterface(enable_camera=False, show_img=False, enable_arm=False, enable_face=False, is_FullScreen=False)
     #建立對話模型，上為偵測意圖，下為對話用
     language='ch'
     chinese_trigger=queue.Queue()
@@ -89,8 +89,9 @@ if __name__=='__main__':
     action="nothing"
 
     while True:
+        text_dict={'what':''}
         myinput=input("Human: ")#收音
-        interface.get_frame()
+        #interface.get_frame()
         fileList = os.listdir('input_img')
         if fileList != []:
             img_list = [encode_image('input_img/' + fileList[-1])]
@@ -102,7 +103,7 @@ if __name__=='__main__':
         text_dict['language']=language
         intention=intention_answer.run_intention(texts=text_dict)
         print(intention)
-        result=Main_model.run(text_dict,intention=intention,img_list=img_list)#run GPT model
+        result=Main_model.run(text_dict,intention=intention)#run GPT model
         conversation_history.save_text(result)#存本次對話
         conversation_history.load_text()#讀ltm
         #print(result)

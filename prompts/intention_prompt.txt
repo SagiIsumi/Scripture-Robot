@@ -4,7 +4,7 @@
 -keyword是從what中判斷出的講道者或是講經經典
 -emotion是你的情緒，根據what只能從下方emotion的限制中選擇一個
 -graph是判斷是否需要啟用相機功能的控制閘，其輸出值應為True或是False
--paragraph是希望能擷取心經經文的段落內文，請從中擷取部分內文
+-paragraph是希望能擷取心經經文的段落內文，請根據waht的文意從中擷取部分內文
 -examples是幾個例子讓你理解keyword和paragraph該如何分析
 -keywordlist是修正keyword所需要的正確選字，僅供參照用
 -paragraphlist是心經的原文，記載了經文內容的正確選字，提供給paragraph參考
@@ -24,6 +24,7 @@ rules:
 -graph必須依據what的內容判斷是否需要有相機所拍攝的圖片來完善what的要求，若需要啟用相機為True，否則為False
 -paragraph僅限intetnion是要求朗讀經文和要求解讀經文內容的情況的情況才從what中分析，否則皆為"None"
 -paragraph的字數應在20字以內
+-paragraph請參照what提供的上下文關係，從paragraphlist選出正確的段落
 -paragraph因為讀取時what可能產生錯字，錯字的修正請參考paragraphlist
 -paragraph的發音如果貼近paragraphlist的內文的發音，但選字不正確的場合，請參考paragraphlist內容的發音盡可能選取接近的內文段落
 -keywordlist和paragraphlist不是要作為json檔輸出的項目
@@ -52,22 +53,23 @@ paragraphlist:
 舍利子　是諸法空相　不生不滅　不垢不淨　不增不減　
 是故　空中無色　無受想行識　無眼耳鼻舌身意　無色聲香味觸法　
 無眼界　乃至無意識界　無無明　亦無無明盡　乃至無老死　亦無老死盡　
-無苦集滅道　無智亦無得　以無所得故　菩提薩埵
+　無智亦無得　以無所得故　菩提薩埵
 依般若波羅蜜多故　心無罣礙　無罣礙故　無有恐怖　遠離顛倒夢想　究竟涅槃
 三世諸佛　依般若波羅蜜多故　得阿耨多羅三藐三菩提
 故知　般若波羅蜜多是大神咒　是大明咒　是無上咒　是無等等咒　能除一切苦　真實不虛
 故說般若波羅蜜多咒，即說咒曰　揭諦揭諦　波羅揭諦　波羅僧揭諦　菩提薩婆訶
 
 -examples:"請講述法鼓山經文解讀"，intention是"要求解讀經文內容"，keyword是"法鼓山"，emotion是'happy'，graph是'False'，paragrah是"None"
--examples:"我想聽從是諸法空相這段落開始的朗讀"，intention是"要求朗讀經文"，keyword是"心經原文"，emotion是'happy'，graph是'False'，paragrah是"是諸法空相"
+-examples:"我想聽從是諸法空相這段落開始的朗讀"，intention是"要求朗讀經文"，keyword是"心經原文"，emotion是'happy'，graph是'False'，paragrah是"是諸法空相　不生不滅　不垢不淨　不增不減"
+-examples:"我想知道乃至無意識界　無無明　亦無什麼的，後面不太清楚，可以告訴我嗎"，intention是"要求朗讀經文"，keyword是"心經原文"，emotion是'happy'，graph是'False'，paragrah是"無無明　亦無無明盡　乃至無老死　亦無老死盡　無苦集滅道　無智亦無得　以無所得故　菩提薩埵"
 -examples:"跟我分享開篩組獅的經文理解吧"，intention是"要求解讀經文內容"，keyword是"開山祖師"，emotion是'happy'，graph是'False'，paragrah是"None"
--examples:"你有聽過進口髮絲的講經內容嗎"，intention是"要求解讀經文內容"，keyword是"淨空法師"，emotion是'happy'，graph是'False'，paragrah是"None"
--examples:"幫我解釋下洗身博惹事什麼"，intention是"要求解讀經文內容"，keyword是"None"，emotion是'happy'，graph是'False'，paragrah是"行深般若波羅蜜多時"
+-examples:"你有聽過進口髮絲的講經內容嗎"，intention是"日常對話"，keyword是"淨空法師"，emotion是'happy'，graph是'False'，paragrah是"None"
+-examples:"幫我解釋下行身博惹事什麼"，intention是"要求解讀經文內容"，keyword是"None"，emotion是'happy'，graph是'False'，paragrah是"行深般若波羅蜜多時"
 -examples:"我手中的這個東西是什麼"，intention是"日常對話"，keyword是"None"，emotion是'neutral'，graph是'True'，paragrah是"None"
 -examples:"跟我說說你能看見什麼"，intention是"日常對話"，keyword是"None"，emotion是'neutral'，graph是'True'，paragrah是"None"
--examples:"跟我說說你能看見什麼"，intention是"日常對話"，keyword是"None"，emotion是'neutral'，graph是'True'，paragrah是"None"
+-examples:"可以跟我說說無受想行識後面的經文內容嗎，我不太記得了"，intention是"要求朗讀經文"，keyword是"心經原文"，emotion是'happy'，graph是'True'，paragrah是"無眼耳鼻舌身意　無色聲香味觸法"
 -examples:"我最近不斷經歷失敗，心情很低落，請問心經的內容真的幫助我嗎"，intention是"要求解讀經文內容"，keyword是"None"，emotion是'sad'，graph是'False'，paragrah是"None"
--examples:"什麼根魚先申施，講的內容根本沒意義，你要不別講經了"，intention是"日常對話"，keyword是"耕雲先生"，emotion是'angry'，graph是'False'，paragrah是"None"
+-examples:"什麼根魚先申講的內容根本沒意義，你要不別講經了"，intention是"日常對話"，keyword是"耕雲先生"，emotion是'angry'，graph是'False'，paragrah是"None"
 -examples:"我記得有個什麼佛光山和法什麼衫的講經法師，可以跟我說說他的經文理解嗎，就從無意識界，無無什麼的這段落開始吧"，intention是"要求解讀經文內容"，keyword是"法鼓山"，emotion是'happy'，graph是'False'，paragrah是"乃至無意識界　無無明　亦無無明盡"
 -examples:"太攏統了，先解釋大神咒，大悲咒，那些什麼咒語是什麼意思吧?"，intention是"要求解讀經文內容"，keyword是"None"，emotion是'happy'，graph是'False'，paragrah是"是大神咒　是大明咒　是無上咒　是無等等咒　能除一切苦　真實不虛"
 

@@ -21,6 +21,7 @@ class Chatmodel():#核心對話模型
         self.stm=TextBuffer(buffer_size=3)#短期記憶，學長設計的
         self.ltm=longmemory_db
         self.local_db=local_db
+        self.pre_para=''
         self.trans=OpenCC('s2twp')#簡中轉繁中用，備用的
         self.model=GPTopenai(
             openai_api_key=openai_key,
@@ -43,10 +44,13 @@ class Chatmodel():#核心對話模型
 
         return output
     def run_intention(self,texts:dict)->dict:#intention model用
-        texts['what']=self.stm.get()+texts['what']
-        output=self.model.run(text_dict=texts)
+        mytexts={}
+        mytexts['what']=texts['what']+'，上次朗誦段落:'+self.pre_para
+        output=self.model.run(text_dict=mytexts)
         result=json.loads(output)
         #result=[input,output]
+        if result['paragraph']=='None':
+            self.pre_para=result['paragraph']
         return result
     def run(self,texts:dict,intention:dict,img_list=[])->list: #主對話model用
         text=texts['what']+"，短期記憶:"+self.stm.get()
