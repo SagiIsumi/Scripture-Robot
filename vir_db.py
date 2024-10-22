@@ -38,7 +38,7 @@ class VectorDB():
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"模型將運行在: {device}")
         self.splitter=RecursiveCharacterTextSplitter(separators=[" ", "\n"],chunk_size=chunk_size,chunk_overlap=chunk_overlap)
-        self.embeddings=OpenAIEmbeddings(model='text-embedding-3-large')
+        self.embeddings=OpenAIEmbeddings(model='text-embedding-3-large',openai_key=API_KEY)
         self.record=[]
         self.vectorstore = Chroma(
             embedding_function=self.embeddings,
