@@ -45,7 +45,8 @@ class Chatmodel():#核心對話模型
         return output
     def run_intention(self,texts:dict)->dict:#intention model用
         mytexts={}
-        mytexts['what']=texts['what']+'，上次朗誦段落:'+self.pre_para
+        mytexts['what']=texts['what']
+        mytexts['pre_paragraph']=self.pre_para
         output=self.model.run(text_dict=mytexts)
         result=json.loads(output)
         #result=[input,output]
