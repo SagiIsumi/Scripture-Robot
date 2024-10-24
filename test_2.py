@@ -89,8 +89,9 @@ if __name__=='__main__':
     action="nothing"
 
     while True:
+        text_dict={'what':''}
         myinput=input("Human: ")#收音
-        interface.get_frame()
+        #interface.get_frame()
         fileList = os.listdir('input_img')
         if fileList != []:
             img_list = [encode_image('input_img/' + fileList[-1])]
@@ -102,7 +103,7 @@ if __name__=='__main__':
         text_dict['language']=language
         intention=intention_answer.run_intention(texts=text_dict)
         print(intention)
-        result=Main_model.run(text_dict,intention=intention,img_list=img_list)#run GPT model
+        result=Main_model.run(text_dict,intention=intention)#run GPT model
         conversation_history.save_text(result)#存本次對話
         conversation_history.load_text()#讀ltm
         #print(result)

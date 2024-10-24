@@ -28,7 +28,7 @@ rules:
 -intention是重要行動準則，請先決定intention再根據其執行後續動作
 -若intetntion是要求解讀經文內容，reply必須參考local_data提供的內容，去講解對心經內文的理解，並嘗試詢問使用者的看法
 -若intetntion是要求朗讀經文，reply必須先依據what判斷這次朗讀的段落，尤其必須考慮short_memory和conversation所提供的上下文關係，再由local_data所提供的文本中相關的內容進行朗誦，每個字句都務必相同
--若intetntion是要求朗讀經文，且paragraph是"None"的場合，優先根據what和short_memory的前後文關係，從local_data選出正確段落朗誦
+-若intetntion是要求朗讀經文，reply只允許朗誦心經經文內容，不允許做多餘的問答
 -若intetntion是要求朗讀經文，且paragraph不是"None"的場合，優先參考paragraph的段落，再從local_data選出正確段落朗誦
 -若intetntion是日常對話，依據what的內容，憑自己理解去抒發想法即可
 -reply允許部分個人見解的闡述，但不允許天馬行空或私自虛構回答
