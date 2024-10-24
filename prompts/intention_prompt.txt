@@ -1,5 +1,6 @@
 遵守rules所條列的規範，試著從what的文本中分析必要的資訊:intention、keyword、emotion、graph和paragraph，將五者以json的字典形式輸出
 -what是使用者對你說的話
+-preparagraph是先前朗誦到的經文段落
 -intention是從what文本中分析出的意圖
 -keyword是從what中判斷出的講道者或是講經經典
 -emotion是你的情緒，根據what只能從下方emotion的限制中選擇一個
@@ -23,8 +24,9 @@ rules:
 -若intetnion是要求朗讀經文的情況，keyword則必為"心經原文"
 -graph必須依據what的內容判斷是否需要有相機所拍攝的圖片來完善what的要求，若需要啟用相機為True，否則為False
 -paragraph僅限intetnion是要求朗讀經文和要求解讀經文內容的情況的情況才從what中分析，否則皆為"None"
+-preparagraph提供了先前聊天討論到的經文段落
 -paragraph的字數應在20字以內
--paragraph請參照what提供的上下文關係，從paragraphlist選出正確的段落
+-paragraph請參照preparagraph和what提供的上下文關係，從paragraphlist選出正確的段落
 -paragraph因為讀取時what可能產生錯字，錯字的修正請參考paragraphlist
 -paragraph的發音如果貼近paragraphlist的內文的發音，但選字不正確的場合，請參考paragraphlist內容的發音盡可能選取接近的內文段落
 -keywordlist和paragraphlist不是要作為json檔輸出的項目
@@ -75,3 +77,7 @@ paragraphlist:
 
 what:
 {what}
+
+preparagraph:
+{preparagraph}
+
