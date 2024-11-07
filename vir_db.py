@@ -1,6 +1,5 @@
 from pathlib import Path
 from langchain_community.document_loaders import TextLoader
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_openai import OpenAIEmbeddings
 from langchain_chroma import Chroma
 from langchain_core.documents import Document
@@ -10,6 +9,7 @@ from langchain_core.embeddings import Embeddings
 import torch
 import configparser
 import os
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 config=configparser.ConfigParser()
 config.read('config.ini')
@@ -37,11 +37,11 @@ class HuggingfaceEmbeddingModel(Embeddings):
         return [self.embed_query(text) for text in texts]
 
 class VectorDB():
-    def __init__(self,chunk_size=512,chunk_overlap=64,persist_directory=None)->None:
+    def __init__(self,chunk_size=128,chunk_overlap=16,sep=[" ", "\n"],persist_directory=None)->None:
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         print(f"模型將運行在: {device}")
-        self.splitter=RecursiveCharacterTextSplitter(separators=[" ", "\n"],chunk_size=chunk_size,chunk_overlap=chunk_overlap)
-        self.embeddings=OpenAIEmbeddings(model='text-embedding-3-large',openai_key=API_KEY)
+        self.splitter=RecursiveCharacterTextSplitter(separators=sep,chunk_size=chunk_size,chunk_overlap=chunk_overlap)
+        self.embeddings=OpenAIEmbeddings(model='text-embedding-3-large')
         self.record=[]
         self.vectorstore = Chroma(
             embedding_function=self.embeddings,
@@ -59,12 +59,12 @@ class VectorDB():
                     title=name.metadata["source"].split("_")[0]
                     name.metadata["source"]= title.split("\\")[1]
                     texts.append(name)
-
             else:
                 texts=texts+raw_documents
         filter_texts=[item for item in texts if item not in self.record]
+        #print(filter_texts)
         self.record=texts
-        if raw_documents!=None:
+        if (raw_documents!=None) and filter_texts!=[]:
             self.vectorstore.add_documents(documents=filter_texts) 
         print('文檔加載完成')
             
@@ -78,14 +78,20 @@ class VectorDB():
             f.write(f'(Time: {currentMoment}), Human: '+response[0])
             f.write("\n")
             f.write(f'(Time: {currentMoment}), 莫比: '+response[1]+"\n")
-    def retrive_text(self,text,keyword=None)->str:       #RAG，取出相關對話、資料
-        retriver=self.vectorstore.as_retriever(search_type="similarity", search_kwargs={"k": 3})
+    def save_script(self,reponse:str)->None:
+        currentDateAndTime = datetime.now()
+        currentTime = currentDateAndTime.strftime("%Y-%m-%d")
+        currentMoment= currentDateAndTime.strftime("%Y-%m-%d,%H:%M:%S")
+        title='./conversation_history/response_'+currentTime+".txt"
+        path=Path(title)
+        with open(path,mode="a",encoding="utf-8") as f:
+            f.write(f'(Time: {currentMoment}),'+reponse)
+    def retrive_text(self,text,inf_num=3,keyword=None)->str:       #RAG，取出相關對話、資料
+        retriver=self.vectorstore.as_retriever(search_type="mmr", search_kwargs={"k": inf_num})
         results=retriver.invoke(text)
         output=''
-        #print(results)
         for i,content in enumerate(results):
-            output=output+f"Document {i+1}: Text:{content.page_content}\n\
-                            Metadata: {content.metadata}\n"
+            output=output+f"Document {i+1}: Text:{content.page_content}\n"
         return output
     def get_retriver(self,keyword=None): #返回vector database的retriver，功能跟上面重複了，但我懶得優化
         if keyword!=None:

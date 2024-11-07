@@ -15,10 +15,11 @@ import os
 class thread_parameter_get():
     def __init__(self):
         self.thread=None
-    def inner_getter(self,query,func,path,language):
-        query.put(func(path,language))
+    def language_getter(self,query,func,*args):
+        print(args)
+        query.put(func(*args))
     def independent_thread(self,*args):
-        self.thread=threading.Thread(target=self.inner_getter,args=args,daemon=True)
+        self.thread=threading.Thread(target=self.language_getter,args=args,daemon=True)
         self.thread.start()
         
 def language_judger(path):
@@ -69,11 +70,12 @@ def myinterruptspeak(language,interface):
 
 if __name__=='__main__':
     conversation_history=VectorDB(persist_directory='.\conversation_db')
-    script_data=VectorDB(persist_directory='.\script_db')
+    script_data=VectorDB(persist_directory='.\script_db',chunk_size=256,chunk_overlap=32,sep=["。"])
     script_data.load_text(path='.\scripts')
     conversation_history.load_text()
     #建立本地程式庫，建好後會有conversation_db和script_db兩個資料夾
     intention_answer=Chatmodel(promptpath='.\prompts\intention_prompt.txt')
+    slot_answer=Chatmodel(promptpath='.\prompts\slot_prompt.txt')
     Main_model=Chatmodel(promptpath='.\prompts\chat_prompt.txt',
                             longmemory_db=conversation_history,local_db=script_data,temperature=0.5)
 
@@ -87,7 +89,7 @@ if __name__=='__main__':
     text_dict={'what':''}
     interrupt=False
     action="nothing"
-
+    stm=''
     while True:
         text_dict={'what':''}
         myinput=input("Human: ")#收音
@@ -101,11 +103,24 @@ if __name__=='__main__':
         if text_dict['what']=='對話結束':#結束對話
             break
         text_dict['language']=language
-        intention=intention_answer.run_intention(texts=text_dict)
+        int_query=queue.Queue()
+        slot_query=queue.Queue()
+        thread_int=thread_parameter_get()
+        thread_slot=thread_parameter_get()
+        thread_int.independent_thread(int_query,intention_answer.run_intention,text_dict,stm)
+        thread_slot.independent_thread(slot_query,slot_answer.run_slot,text_dict,stm)
+        thread_int.thread.join()
+        thread_slot.thread.join()
+        slot=slot_query.get()
+        intention=int_query.get()
         print(intention)
-        result=Main_model.run(text_dict,intention=intention)#run GPT model
-        conversation_history.save_text(result)#存本次對話
-        conversation_history.load_text()#讀ltm
+        print(slot)
+        result,stm,pre_conv=Main_model.run(text_dict,intent=intention,slot=slot,img_list=img_list)#run GPT model
+        #print(pre_conv)
+        if slot['feedback']==0:
+            if pre_conv!='':
+                conversation_history.save_script(pre_conv)#存本次對話
+                conversation_history.load_text()#讀ltm
         #print(result)
         #interrupt=MyAudio.speaking(result[1],language=language)#機器人說話
         print(result[1])

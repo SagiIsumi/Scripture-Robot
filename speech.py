@@ -169,23 +169,6 @@ def Main(): #測試用
 if __name__=='__main__':
     Main()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 # time_object=datetime.now()
 # currentTime = time_object.strftime("%d-%m-%y_%H-%M-%S")
 # print(currentTime)

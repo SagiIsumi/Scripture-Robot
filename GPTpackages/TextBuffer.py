@@ -8,8 +8,12 @@ class TextBuffer():
         if len(self.buffer) > self.buffer_size:
             self.buffer.pop(0)
 
-    def get(self) ->str:
+    def get(self,require_num=-1) ->str:
         text = ''
-        for b in self.buffer:
-            text = text + str(b) + '\n'
+        for i,b in enumerate(self.buffer):
+            if require_num!=-1:
+                if i <(len(self.buffer)-require_num-1):
+                    continue
+            text = text + "Human:" +b[0]+'\n'+"莫比:"+b[1]+'\n'
+
         return text
